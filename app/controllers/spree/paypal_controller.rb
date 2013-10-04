@@ -68,6 +68,8 @@ module Spree
         :payment_method => payment_method
       } )
       order.next
+      PaypalAddressUpdater.new(order, provider, params[:token]).update
+
       if order.complete?
         flash.notice = Spree.t(:order_processed_successfully)
         redirect_to order_path(order, :token => order.token)
@@ -129,16 +131,18 @@ module Spree
     end
 
     def address_options
-      {
-        :Name => current_order.bill_address.try(:full_name),
-        :Street1 => current_order.bill_address.address1,
-        :Street2 => current_order.bill_address.address2,
-        :CityName => current_order.bill_address.city,
-        # :phone => current_order.bill_address.phone,
-        :StateOrProvince => current_order.bill_address.state_text,
-        :Country => current_order.bill_address.country.iso,
-        :PostalCode => current_order.bill_address.zipcode
-      }
+      if current_order.bill_address
+        {
+          :Name => current_order.bill_address.try(:full_name),
+          :Street1 => current_order.bill_address.address1,
+          :Street2 => current_order.bill_address.address2,
+          :CityName => current_order.bill_address.city,
+          # :phone => current_order.bill_address.phone,
+          :StateOrProvince => current_order.bill_address.state_text,
+          :Country => current_order.bill_address.country.iso,
+          :PostalCode => current_order.bill_address.zipcode
+        }
+      end
     end
   end
 end
