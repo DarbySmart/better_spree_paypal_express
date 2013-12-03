@@ -10,6 +10,7 @@ module Spree
       @checkout_details = @provider.get_express_checkout_details(token: @token)
       update_billing_address
       update_shipping_address
+      update_email unless @order.email.present?
       @order.save
     end
 
@@ -45,6 +46,10 @@ module Spree
       )
     end
 
+    def update_email
+      @order.update_attributes(email: paypal_email)
+    end
+
     def paypal_bill_address
       paypal_payer_info.Address
     end
@@ -60,6 +65,10 @@ module Spree
         .GetExpressCheckoutDetailsResponseDetails
         .PaymentDetails[0]
         .ShipToAddress
+    end
+
+    def paypal_email
+      @checkout_details.GetExpressCheckoutDetailsResponseDetails.PayerInfo.Payer
     end
   end
 end
