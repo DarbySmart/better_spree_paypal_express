@@ -120,7 +120,7 @@ module Spree
           },
           :TaxTotal => {
             :currencyID => current_order.currency,
-            :value => current_order.tax_total
+            :value => current_order.adjustments.tax.map(&:amount).reduce(:+)
           },
           :ShipToAddress => address_options,
           :PaymentDetailsItem => items,
